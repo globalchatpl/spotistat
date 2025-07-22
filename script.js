@@ -51,3 +51,10 @@ if (accessToken && refreshToken) {
 } else {
   renderLoggedOut();
 }
+
+// Ping backend co 10 minut, by nie zasypiał (Render hack)
+setInterval(() => {
+  fetch('https://spotistat-backend.onrender.com/ping')
+    .then(() => console.log('🔁 Ping backendu'))
+    .catch(err => console.warn('❌ Ping failed', err));
+}, 10 * 60 * 1000); // 10 minut
