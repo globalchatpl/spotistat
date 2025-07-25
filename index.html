@@ -2,12 +2,33 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>Spotistat</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.2" />
+  <title>Spotistat - Twoje Spotify stats</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="root"></div>
+  <nav>
+    <h1>🎶 Spotistat</h1>
+    <select id="time-range" aria-label="Zakres czasowy">
+      <option value="short_term">Ostatni miesiąc</option>
+      <option value="medium_term">Ostatnie pół roku</option>
+      <option value="long_term">Ostatni rok</option>
+    </select>
+    <div class="tabs">
+      <button data-section="tracks" class="tab active">Top Utwory</button>
+      <button data-section="albums" class="tab">Top Albumy</button>
+      <button data-section="artists" class="tab">Top Wykonawcy</button>
+    </div>
+    <button id="logout" style="display:none;">Wyloguj się</button>
+  </nav>
+
+  <main id="root"></main>
+  <div id="stats" class="stats"></div>
+
+  <button id="share" style="display:none;">Udostępnij Top 10</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
