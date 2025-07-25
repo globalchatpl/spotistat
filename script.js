@@ -16,7 +16,7 @@ function clearUrl() {
 
 let accessToken = localStorage.getItem('access_token');
 let refreshToken = localStorage.getItem('refresh_token');
-let currentSection = 'tracks'; // domyślny tab
+let currentSection = 'tracks';
 let currentRange = localStorage.getItem('range') || 'short_term';
 
 if (accessTokenFromUrl && refreshTokenFromUrl) {
@@ -46,7 +46,7 @@ function renderLoggedOut() {
   document.querySelector('.tabs').style.display = 'none';
 
   document.getElementById('login').onclick = () => {
-    window.location.href = 'https://spotistat-backend.onrender.com/login'; // Backend URL
+    window.location.href = 'https://spotistat-backend.onrender.com/login';
   };
 }
 
@@ -99,11 +99,17 @@ async function loadSection(section) {
   shareBtn.style.display = 'none';
 
   try {
-    // Odśwież token jeśli trzeba
     await refreshTokenIfNeeded();
 
-    // Pobierz dane z backendu (który łączy się z Spotify)
-    const res = await fetch(`https://spotistat-backend.onrender.com/top/${section}?time_range=${currentRange}`, {
+    const sectionMap = {
+      tracks: 'top-tracks',
+      albums: 'top-albums',
+      artists: 'top-artists'
+    };
+
+    const endpoint = sectionMap[section];
+
+    const res = await fetch(`https://spotistat-backend.onrender.com/${endpoint}?time_range=${currentRange}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -133,24 +139,28 @@ function renderList(items, section) {
     let imageUrl = '';
     let title = '';
     let subtitle = '';
+    let link = '#';
 
     if (section === 'tracks') {
-      imageUrl = item.album.images[0]?.url || '';
-      title = `${idx + 1}. ${item.name}`;
-      subtitle = item.artists.map(a => a.name).join(', ');
+      imageUrl = item.image;
+      title = `${idx + 1}. ${item.title}`;
+      subtitle = item.artist;
+      link = item.url;
     } else if (section === 'albums') {
-      imageUrl = item.images[0]?.url || '';
+      imageUrl = item.image;
       title = `${idx + 1}. ${item.name}`;
-      subtitle = item.artists.map(a => a.name).join(', ');
+      subtitle = item.artist;
+      link = item.url;
     } else if (section === 'artists') {
-      imageUrl = item.images?.[0]?.url || '';
+      imageUrl = item.image;
       title = `${idx + 1}. ${item.name}`;
       subtitle = `Popularność: ${item.popularity}`;
+      link = item.url;
     }
 
     const itemEl = document.createElement('a');
     itemEl.className = 'list-item';
-    itemEl.href = section === 'artists' ? item.external_urls.spotify : (item.external_urls?.spotify || '#');
+    itemEl.href = link;
     itemEl.target = '_blank';
     itemEl.rel = 'noopener noreferrer';
     itemEl.innerHTML = `
@@ -165,12 +175,16 @@ function renderList(items, section) {
 }
 
 async function refreshTokenIfNeeded() {
-  // Prosty przykład: token wygasa po 1h - tu możesz dodać logikę lub wywołać backend odświeżania
-  // Na ten moment robię tylko ping do backendu do endpointu refresh-token, jeśli chcesz
-
-  // Możesz rozszerzyć o refresh token logicę tu - dla uproszczenia:
+  // Można rozbudować później
   return true;
 }
+
+// PING co 5 minut do Rendera
+setInterval(() => {
+  fetch('https://spotistat-backend.onrender.com/ping')
+    .then(() => console.log('Ping backendu...'))
+    .catch(() => console.warn('Ping nie powiódł się'));
+}, 5 * 60 * 1000); // 5 minut
 
 // Udostępnianie top 10 jako grafika
 shareBtn.onclick = async () => {
@@ -187,7 +201,6 @@ shareBtn.onclick = async () => {
           files: [file],
         });
       } else {
-        // Fallback: pobierz plik
         const link = document.createElement('a');
         link.download = 'spotify-top10.png';
         link.href = canvas.toDataURL();
