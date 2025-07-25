@@ -24,10 +24,9 @@ if (accessTokenFromUrl && refreshTokenFromUrl) {
 function renderLoggedIn() {
   root.innerHTML = `
     <div style="padding: 1rem; font-family: 'Roboto', sans-serif;">
-      <h1 style="font-size: 1.5rem;">🎧 Jesteś zalogowany!</h1>
-      <p><strong>Access Token:</strong><br>${accessToken}</p>
-      <p><strong>Refresh Token:</strong><br>${refreshToken}</p>
-      <button id="logout" style="margin-top: 1rem; padding: 0.5rem 1rem;">Wyloguj się</button>
+      <h1 style="font-size: 1.5rem;">🎧 Twoje TOP 50 utworów</h1>
+      <div id="track-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
+      <button id="logout" style="margin-top: 2rem; padding: 0.5rem 1rem;">Wyloguj się</button>
     </div>
   `;
 
@@ -36,6 +35,8 @@ function renderLoggedIn() {
     localStorage.removeItem('refresh_token');
     location.reload();
   });
+
+  fetchTopTracks();
 }
 
 function renderLoggedOut() {
