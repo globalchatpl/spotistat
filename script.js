@@ -46,7 +46,7 @@ function renderLoggedOut() {
   document.querySelector('.tabs').style.display = 'none';
 
   document.getElementById('login').onclick = () => {
-    window.location.href = 'https://spotistat-backend.onrender.com/login'; // Backend URL, zmień jeśli trzeba
+    window.location.href = 'https://spotistat-backend.onrender.com/login'; // Backend URL
   };
 }
 
