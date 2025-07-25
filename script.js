@@ -46,7 +46,7 @@ function renderLoggedOut() {
   document.querySelector('.tabs').style.display = 'none';
 
   document.getElementById('login').onclick = () => {
-    window.location.href = 'http://localhost:8888/login'; // Backend URL, zmień jeśli trzeba
+    window.location.href = 'https://spotistat-backend.onrender.com/login'; // Backend URL, zmień jeśli trzeba
   };
 }
 
@@ -103,7 +103,7 @@ async function loadSection(section) {
     await refreshTokenIfNeeded();
 
     // Pobierz dane z backendu (który łączy się z Spotify)
-    const res = await fetch(`http://localhost:8888/top/${section}?time_range=${currentRange}`, {
+    const res = await fetch(`https://spotistat-backend.onrender.com/top/${section}?time_range=${currentRange}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
