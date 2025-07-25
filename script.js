@@ -52,6 +52,45 @@ function renderLoggedOut() {
   });
 }
 
+function fetchTopTracks() {
+  fetch('https://spotistat-backend.onrender.com/top-tracks', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('track-list');
+      if (!data.tracks) {
+        container.innerHTML = '<p>Nie udało się pobrać utworów 😢</p>';
+        return;
+      }
+
+      container.innerHTML = data.tracks.map(track => `
+        <a href="${track.url}" target="_blank" style="
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          background: #f0f0f0;
+          padding: 0.75rem;
+          border-radius: 12px;
+          text-decoration: none;
+          color: black;
+        ">
+          <img src="${track.image}" alt="${track.title}" style="width: 64px; height: 64px; border-radius: 8px;" />
+          <div style="flex: 1;">
+            <div><strong>#${track.position}</strong> ${track.title}</div>
+            <div style="font-size: 0.9rem; color: #555;">${track.artist}</div>
+          </div>
+        </a>
+      `).join('');
+    })
+    .catch(err => {
+      console.error('Błąd pobierania:', err);
+      document.getElementById('track-list').innerHTML = '<p>Nie udało się pobrać danych 😢</p>';
+    });
+}
+
 // Główna logika
 if (accessToken && refreshToken) {
   renderLoggedIn();
