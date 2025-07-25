@@ -21,11 +21,13 @@ if (accessTokenFromUrl && refreshTokenFromUrl) {
 
 function renderLoggedIn() {
   root.innerHTML = `
-    <div style="padding: 1rem; font-family: 'Roboto', sans-serif;">
-      <h1 style="font-size: 1.5rem;">🎧 Twoje TOP 50 utworów</h1>
-      <div id="stats" style="margin-top: 1rem; font-size: 1rem;"></div>
+    <div style="padding: 1rem; font-family: 'Roboto', sans-serif; max-width: 768px; margin: auto;">
+      <h1 style="font-size: 2rem;">🎧 Twoje TOP 50 utworów</h1>
+      <div id="stats" style="margin-top: 1rem; font-size: 1.2rem;"></div>
       <div id="track-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
-      <button id="logout" style="margin-top: 2rem; padding: 0.5rem 1rem;">Wyloguj się</button>
+      <h2 style="margin-top: 2rem; font-size: 1.8rem;">💿 Najczęściej słuchane albumy</h2>
+      <div id="album-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
+      <button id="logout" style="margin-top: 2rem; padding: 0.75rem 1.5rem; font-size: 1rem;">Wyloguj się</button>
     </div>
   `;
 
@@ -67,7 +69,6 @@ function fetchTopTracks() {
         return;
       }
 
-      // Szacowany czas słuchania (zakładamy ~3.5 minuty na utwór)
       const totalMinutes = Math.round(data.tracks.length * 3.5);
       const totalPopularity = data.tracks.reduce((sum, t) => sum + t.popularity, 0);
 
@@ -94,11 +95,54 @@ function fetchTopTracks() {
           </div>
         </a>
       `).join('');
+
+      renderTopAlbums(data.tracks);
     })
     .catch(err => {
       console.error('Błąd pobierania:', err);
       document.getElementById('track-list').innerHTML = '<p>Nie udało się pobrać danych 😢</p>';
     });
+}
+
+function renderTopAlbums(tracks) {
+  const albumList = document.getElementById('album-list');
+  const albumMap = new Map();
+
+  tracks.forEach(track => {
+    const key = `${track.album}-${track.artist}`;
+    if (!albumMap.has(key)) {
+      albumMap.set(key, {
+        title: track.album,
+        artist: track.artist,
+        image: track.image,
+        count: 1
+      });
+    } else {
+      albumMap.get(key).count++;
+    }
+  });
+
+  const sortedAlbums = [...albumMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  albumList.innerHTML = sortedAlbums.map((album, index) => `
+    <div style="
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #eaeaea;
+      padding: 0.75rem;
+      border-radius: 12px;
+    ">
+      <img src="${album.image}" alt="${album.title}" style="width: 64px; height: 64px; border-radius: 8px;" />
+      <div>
+        <strong>#${index + 1}</strong> ${album.title}<br/>
+        <span style="font-size: 0.9rem; color: #555;">${album.artist}</span><br/>
+        <span style="font-size: 0.8rem;">🎵 ${album.count} utworów</span>
+      </div>
+    </div>
+  `).join('');
 }
 
 if (accessToken && refreshToken) {
